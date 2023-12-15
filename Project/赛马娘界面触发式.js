@@ -15,18 +15,50 @@ async function androidMain(androidBot) {
     console.log(androidId);
     /**试试赛马娘,全自动界面触发式脚本
      */
-
-    界面分辨率获取();
-
+    while (true) {
+        await androidBot.showToast("通知嘛,你是要通知嘛,只能在这里通知呐!!!", 3000);
+        await androidBot.sleep("3000")
+    }
+    // await 界面分辨率获取();
+    // 养成界面操作();
 
     /**
      * 以下为自定义函数
      */
+    async function 养成界面操作() {
+        /*体力条判断*/
+        let col = await androidBot.getColor(Po_X * 0.5, Po_Y * 0.13961);
+        if (col == "#757575") {
+            console.log("体力不够了");
+            await androidBot.showToast("体力不够了", 1000)
+        }
+    }
+
+    async function 界面判断() {
+        let initOcr = await androidBot.initOcr("127.0.0.1");
+        console.log(initOcr);
+        if (await androidBot.findWords("养成", { region: [0, 0, Po_X * 0.11, Po_Y * 0.07] })) {
+            console.log("当前在养成界面");
+        }
+    }
     async function 界面分辨率获取() {
         let param = await androidBot.getElementRect(`com.bilibili.umamusu/android:id=content/android.widget.FrameLayout[1]`);
-        Po_X = param.right.toString();
-        Po_Y = param.bottom.toString();
-        console("当前屏幕分辨率为");
+        Po_X = param.right;
+        Po_Y = param.bottom;
+        console.log("当前屏幕分辨率为" + Po_X + " * " + Po_Y);
+    }
+    async function 我的ocr() {
+
+        let initOcr = await androidBot.initOcr("127.0.0.1");
+        console.log(initOcr);
+        while (true) {
+            console.time("time");
+            let words = await androidBot.getWords();
+            console.log(words);
+            console.timeEnd("time");
+            await androidBot.sleep("3000");
+            await androidBot.showToast("iiiii", 1000)
+        }
     }
 
 }
