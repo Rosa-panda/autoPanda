@@ -1,4 +1,6 @@
 const AndroidBot = require('AndroidBot');//引用AndroidBot模块
+global.Po_X = null;
+global.Po_Y = null;
 
 //注册主函数，安卓端连接脚本会自动调用androidMain，并传递AndroidBot对象。设置服务端监听端口，手机端默认连接端口16678
 AndroidBot.registerMain(androidMain, 16678);
@@ -11,19 +13,20 @@ async function androidMain(androidBot) {
     await androidBot.setImplicitTimeout(5000);
     let androidId = await androidBot.getAndroidId();
     console.log(androidId);
+    /**试试赛马娘,全自动界面触发式脚本
+     */
 
-    let imagePath1 = "/storage/emulated/0/Android/data/com.aibot.client/files/小猫.png";
-    do {
-        let 开关 = await androidBot.appIsRunnig("com.bilibili.umamusu");
-        if (开关) {
-            console.log(开关, "状态");
-            await androidBot.startApp("com.bilibili.umamusu");
-            await androidBot.sleep(1000);
-            await androidBot.click(402, 816);
-        }
-        console.log(开关);
-        await androidBot.sleep(3000);
-    } while (true);
+    界面分辨率获取();
 
+
+    /**
+     * 以下为自定义函数
+     */
+    async function 界面分辨率获取() {
+        let param = await androidBot.getElementRect(`com.bilibili.umamusu/android:id=content/android.widget.FrameLayout[1]`);
+        Po_X = param.right.toString();
+        Po_Y = param.bottom.toString();
+        console("当前屏幕分辨率为");
+    }
 
 }
