@@ -14,6 +14,7 @@ async function androidMain(androidBot) {
     await androidBot.setImplicitTimeout(5000);
     let androidId = await androidBot.getAndroidId();
     console.log(androidId);
+    await 界面分辨率获取();         //分辨率必须先获取
     /**试试赛马娘,全自动界面触发式脚本
      */
     // while (true) {
@@ -21,10 +22,9 @@ async function androidMain(androidBot) {
     //     await androidBot.sleep("3000");
     // }
 
-
-    await 界面分辨率获取();
+    训练();
     // 养成界面操作();
-    界面判断();
+    // 界面判断();
     // 我的ocr();
     // 少女事件界面选择();
 
@@ -37,19 +37,20 @@ async function androidMain(androidBot) {
      */
     async function 养成界面操作() {
         let initOcr = await androidBot.initOcr("127.0.0.1");
+        /*生病判断*/
         let col1 = await androidBot.getColor(Math.ceil(Po_X * 0.206666666), Math.ceil(Po_Y * 0.8775));
         if (col1 != "#a29fa4") {
             await androidBot.click(Math.ceil(Po_X * 0.206666666), Math.ceil(Po_Y * 0.8775));//点击医务室按钮
             await 找到字后再点击(0.39, 0.3, 0.61, 0.35, 0.73, 0.65, "医务室确认");
             return;
         }
-        /*如果不是极佳,先去散步*/
+        /*心情判断*/
         if (!await androidBot.findWords("极佳", { region: [Math.ceil(Po_X * 0.736), Math.ceil(Po_Y * 0.1), Math.ceil(Po_X * 0.89), Math.ceil(Po_Y * 0.15)] })) {
             await androidBot.click(Math.ceil(Po_X * 0.5), Math.ceil(Po_Y * 0.9));//点击外出按钮
             await 找到字后再点击(0.39, 0.3, 0.61, 0.35, 0.73, 0.65, "外出确认");
             return;
         }
-        /*通过找色,做体力条判断*/
+        /*通过找色,体力条判断*/
         let col2 = await androidBot.getColor(Math.ceil(Po_X * 0.5), Math.ceil(Po_Y * 0.134));
         if (col2 == "#757575") {
             console.log("体力不够了");
@@ -58,6 +59,7 @@ async function androidMain(androidBot) {
             await 找到字后再点击(0.39, 0.3, 0.61, 0.35, 0.73, 0.65, "休息确认");
             return;
         }
+        await androidBot.click(Math.ceil(Po_X * 0.5), Math.ceil(Po_Y * 0.76));//点击训练按钮
     }
     /**
      * 区域找字,找到相应的字以后,会则点击相应的按钮,若长时间(30秒)找不到字,依然会点击相应的按钮.
@@ -75,6 +77,7 @@ async function androidMain(androidBot) {
             if (await androidBot.findWords(str, { region: [Math.ceil(Po_X * x1), Math.ceil(Po_Y * y1), Math.ceil(Po_X * x2), Math.ceil(Po_Y * y2)] })) {
                 await androidBot.sleep("250");//OCR找的也太快了吧,找到以后还需要加延时才能反应过来.
                 await androidBot.click(Math.ceil(Po_X * x3), Math.ceil(Po_Y * y3));//点击确定
+                await androidBot.sleep("250");//怕有些时候反应不过来
                 break;
             }
             //如果接近30秒都找不到的话,也跳出,可能是ocr出问题了
@@ -91,10 +94,6 @@ async function androidMain(androidBot) {
     async function 界面判断() {
         let initOcr = await androidBot.initOcr("127.0.0.1");
         console.log(initOcr);
-        if (await androidBot.findWords("养成", { region: [0, 0, Math.ceil(Po_X * 0.11), Math.ceil(Po_Y * 0.07)] })) {
-            console.log("当前在养成界面");
-
-        }
         if (await androidBot.findWords("训练", { region: [0, 0, Math.ceil(Po_X * 0.11), Math.ceil(Po_Y * 0.07)] })) {
             console.log("当前在训练界面");
         }
@@ -104,8 +103,56 @@ async function androidMain(androidBot) {
         }
         if (await androidBot.findWords("比赛日", { region: [Math.ceil(Po_X * 0), Math.ceil(Po_Y * 0.088), Math.ceil(Po_X * 0.214), Math.ceil(Po_Y * 0.131875)] })) {
             console.log("当前在比赛日界面");
+            await 任务比赛页面();
+        }
+        if (await androidBot.findWords("养成", { region: [0, 0, Math.ceil(Po_X * 0.11), Math.ceil(Po_Y * 0.07)] })) {
+            console.log("当前在养成界面");
+            养成界面操作();
         }
     }
+    /**
+     * 训练操作
+     */
+    async function 训练() {
+        let swp = await 判断当前选定项目();
+
+    }
+    /**判断当前选定的项目
+     * 
+     * @returns 0:速, 1:耐, 2:力, 3:毅, 4:智, null:找不到啊,直接摆烂点速度!
+     */
+    async function 判断当前选定项目() {
+        let col1 = await androidBot.getColor(Math.ceil(Po_X * 0.1533), Math.ceil(Po_Y * 0.7287));
+        let col2 = await androidBot.getColor(Math.ceil(Po_X * 0.3288), Math.ceil(Po_Y * 0.7287));
+        let col3 = await androidBot.getColor(Math.ceil(Po_X * 0.51), Math.ceil(Po_Y * 0.7287));
+        let col4 = await androidBot.getColor(Math.ceil(Po_X * 0.6822), Math.ceil(Po_Y * 0.7287));
+        let col5 = await androidBot.getColor(Math.ceil(Po_X * 0.86), Math.ceil(Po_Y * 0.7287));
+        if (col1 == "#0e96fc") {
+            console.log("当前选定的是速度");
+            return 0;
+        } else if (col2 == "#0e96fc") {
+            console.log("当前选定的是耐力");
+            return 1;
+        } else if (col3 == "#0e96fc") {
+            console.log("当前选定的是力量");
+            return 2;
+        } else if (col4 == "#0e96fc") {
+            console.log("当前选定的是毅力");
+            return 3;
+        } else if (col5 == "#0e96fc") {
+            console.log("当前选定的是智力");
+            return 4;
+        } else {
+            console.log("这是出故障了啊,不用怕,等下无脑点速度,养成总能跑过的吧");
+            await androidBot.click(Math.ceil(Po_X * 0.14777), Math.ceil(Po_Y * 0.8225));//保险,再点击一次训练速度
+            await androidBot.sleep(1500);
+            await androidBot.click(Math.ceil(Po_X * 0.14777), Math.ceil(Po_Y * 0.8225));//保险,再点击一次训练速度
+            return null;
+        }
+    }
+    /**
+     * 分辨率获取,需要打开游戏
+     */
     async function 界面分辨率获取() {
         let param = await androidBot.getElementRect(`com.bilibili.umamusu/android:id=content/android.widget.FrameLayout[1]`);
         Po_X = param.right;
@@ -145,12 +192,19 @@ async function androidMain(androidBot) {
     /**
      * 进入了比赛界面的操作
      */
-    async function 进行比赛() {
+    async function 任务比赛页面() {
         let initOcr = await androidBot.initOcr("127.0.0.1");
         await androidBot.click(Math.ceil(Po_X * 0.7), Math.ceil(Po_Y * 0.84));//点击比赛按钮
         await androidBot.sleep(2000);
         await androidBot.click(Math.ceil(Po_X * 0.7), Math.ceil(Po_Y * 0.84));//点击参赛按钮
         await 找到字后再点击(0.38, 0.226, 0.6, 0.29, 0.73, 0.65, "赛事详情");
+        await 找到字后再点击(0.26, 0.9, 0.44, 0.93, 0.44, 0.93, "查看结果");
+        await androidBot.sleep("3500");
+        await androidBot.click(Math.ceil(Po_X * 0.7), Math.ceil(Po_Y * 0.84));//随便的点击屏幕
+        await 找到字后再点击(0.42, 0.9, 0.57, 0.93, 0.44, 0.93, "下一页");
+        await 找到字后再点击(0.65, 0.93, 0.77, 0.96, 0.7, 0.93, "下一步");
+        await 找到字后再点击(0.43, 0.85, 0.57, 0.88, 0.57, 0.88, "继续");
+        await 找到字后再点击(0.43, 0.85, 0.57, 0.88, 0.57, 0.88, "继续");
     }
 
     /**
