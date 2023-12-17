@@ -14,29 +14,33 @@ async function androidMain(androidBot) {
     await androidBot.setImplicitTimeout(5000);
     let androidId = await androidBot.getAndroidId();
     console.log(androidId);
-    await 界面分辨率获取();         //分辨率必须先获取
+    global.initOcr = await androidBot.initOcr("192.168.1.3", { enableGPU: true, enableTensorrt: true });//初始化OCR,全局
+    await 界面分辨率获取();//分辨率必须先获取
+    /******************************************************这里的上面的东西尽量不要动********************************************************/
+
+
     /**试试赛马娘,全自动界面触发式脚本
      */
     // while (true) {
     //     await androidBot.showToast("通知嘛,你是要通知嘛,只能在这里通知呐!!!", 3000);
     //     await androidBot.sleep("3000");
     // }
-
-    训练();
+    // 训练();
     // 养成界面操作();
     // 界面判断();
     // 我的ocr();
     // 少女事件界面选择();
-
+    console.log("gogogogogog");
+    await 训练属性获取();
 
 
     /**********************************************************以下为函数区域******************************************************/
+
 
     /**
      * 判断进入了养成界面后,进行的操作
      */
     async function 养成界面操作() {
-        let initOcr = await androidBot.initOcr("127.0.0.1");
         /*生病判断*/
         let col1 = await androidBot.getColor(Math.ceil(Po_X * 0.206666666), Math.ceil(Po_Y * 0.8775));
         if (col1 != "#a29fa4") {
@@ -72,7 +76,6 @@ async function androidMain(androidBot) {
      * @param {要找的字} str 
      */
     async function 找到字后再点击(x1, y1, x2, y2, x3, y3, str) {
-        let initOcr = await androidBot.initOcr("127.0.0.1");
         while (true) {
             if (await androidBot.findWords(str, { region: [Math.ceil(Po_X * x1), Math.ceil(Po_Y * y1), Math.ceil(Po_X * x2), Math.ceil(Po_Y * y2)] })) {
                 await androidBot.sleep("250");//OCR找的也太快了吧,找到以后还需要加延时才能反应过来.
@@ -92,7 +95,6 @@ async function androidMain(androidBot) {
      * 总入口
      */
     async function 界面判断() {
-        let initOcr = await androidBot.initOcr("127.0.0.1");
         console.log(initOcr);
         if (await androidBot.findWords("训练", { region: [0, 0, Math.ceil(Po_X * 0.11), Math.ceil(Po_Y * 0.07)] })) {
             console.log("当前在训练界面");
@@ -114,7 +116,48 @@ async function androidMain(androidBot) {
      * 训练操作
      */
     async function 训练() {
+        let allScore = [];
         let swp = await 判断当前选定项目();
+        //出故障了,并且速度已经点过了,直接跳出
+        if (swp == null) {
+            return;
+        }
+        let i = swp + 1;
+        do {
+            if (i == 5) {
+                i = 0;
+            }
+            //速度
+            if (i == 0) {
+                console.log("0");
+            }
+            //耐力
+            if (i == 1) {
+                console.log("1");
+            }
+            //力量
+            if (i == 2) {
+                console.log("2");
+            }
+            //毅力
+            if (i == 3) {
+                console.log("3");
+            }
+            //智力
+            if (i == 4) {
+                console.log("4");
+            }
+            i++;
+        } while (i != (swp + 1));
+    }
+    async function 训练属性获取(i) {
+        let speed, endure, power, perseverance, intelligence;
+        speed = await androidBot.getWords({ region: [Math.ceil(Po_X * 0), Math.ceil(Po_Y * 0.58), Math.ceil(Po_X * 0.2), Math.ceil(Po_Y * 0.65)] });
+        endure = await androidBot.getWords({ region: [Math.ceil(Po_X * 0.193), Math.ceil(Po_Y * 0.58), Math.ceil(Po_X * 0.35), Math.ceil(Po_Y * 0.65)] });
+        power = await androidBot.getWords({ region: [Math.ceil(Po_X * 0.34), Math.ceil(Po_Y * 0.58), Math.ceil(Po_X * 0.51), Math.ceil(Po_Y * 0.65)] });
+        perseverance = await androidBot.getWords({ region: [Math.ceil(Po_X * 0.49), Math.ceil(Po_Y * 0.58), Math.ceil(Po_X * 0.7), Math.ceil(Po_Y * 0.65)] });
+        intelligence = await androidBot.getWords({ region: [Math.ceil(Po_X * 0.63), Math.ceil(Po_Y * 0.58), Math.ceil(Po_X * 0.83), Math.ceil(Po_Y * 0.65)] });
+        console.log("速度" + speed + "\n", "耐力" + endure + "\n" + "力量" + power + "\n" + "毅力" + perseverance + "\n" + "智力" + intelligence);
 
     }
     /**判断当前选定的项目
@@ -165,8 +208,6 @@ async function androidMain(androidBot) {
      * 循环打印输出ocr找到的文字
      */
     async function 我的ocr() {
-
-        let initOcr = await androidBot.initOcr("127.0.0.1");
         console.log(initOcr);
         while (true) {
             console.time("time");
@@ -193,7 +234,6 @@ async function androidMain(androidBot) {
      * 进入了比赛界面的操作
      */
     async function 任务比赛页面() {
-        let initOcr = await androidBot.initOcr("127.0.0.1");
         await androidBot.click(Math.ceil(Po_X * 0.7), Math.ceil(Po_Y * 0.84));//点击比赛按钮
         await androidBot.sleep(2000);
         await androidBot.click(Math.ceil(Po_X * 0.7), Math.ceil(Po_Y * 0.84));//点击参赛按钮
@@ -212,7 +252,6 @@ async function androidMain(androidBot) {
      * @returns 
      */
     async function 少女事件界面选择() {
-        let initOcr = await androidBot.initOcr("127.0.0.1");
         /*获取当前事件*/
         事件名 = await androidBot.getWords({ region: [Math.ceil(Po_X * 0.15), Math.ceil(Po_Y * 0.19), Math.ceil(Po_X * 0.8), Math.ceil(Po_Y * 0.23)] });
         if (事件名 != null) {
@@ -303,6 +342,5 @@ async function androidMain(androidBot) {
             return false;
         }
     }
-
 
 }
