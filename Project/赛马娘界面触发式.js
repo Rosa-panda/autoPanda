@@ -28,6 +28,7 @@ async function androidMain(androidBot) {
     // }
     // await 训练();
     // 养成界面操作();
+    let bbb = await androidBot.getWords({ region: [Math.ceil(Po_X * 0.26), Math.ceil(Po_Y * 0.16), Math.ceil(Po_X * 0.39), Math.ceil(Po_Y * 0.19)] })
     界面判断();
     // 我的ocr();
     // 少女事件界面选择();
@@ -79,7 +80,7 @@ async function androidMain(androidBot) {
         let i = 0;
         while (true) {
             //如果接近30秒都找不到的话,也跳出,可能是ocr出问题了
-            if (await androidBot.findWords(str, { region: [Math.ceil(Po_X * x1), Math.ceil(Po_Y * y1), Math.ceil(Po_X * x2), Math.ceil(Po_Y * y2)] })) {
+            if (await androidBot.findWords(str, { region: [Math.ceil(Po_X * x1), Math.ceil(Po_Y * y1), Math.ceil(Po_X * x2), Math.ceil(Po_Y * y2)], scale: 2 })) {
                 await androidBot.sleep("250");//OCR找的也太快了吧,找到以后还需要加延时才能反应过来.
                 await androidBot.click(Math.ceil(Po_X * x3), Math.ceil(Po_Y * y3));//点击确定
                 await androidBot.sleep("250");//怕有些时候反应不过来
@@ -105,18 +106,32 @@ async function androidMain(androidBot) {
                 if (await androidBot.findWords("训练", { region: [0, 0, Math.ceil(Po_X * 0.11), Math.ceil(Po_Y * 0.07)] })) {
                     console.log("当前在训练界面");
                     await 训练();
+                    await androidBot.sleep("3000");
+                }
+                if (await androidBot.findWords("助卡事", { region: [Math.ceil(Po_X * 0.26), Math.ceil(Po_Y * 0.16), Math.ceil(Po_X * 0.39), Math.ceil(Po_Y * 0.19)] })) {
+                    console.log("当前在协助卡事件界面");
+                    await 事件界面选择();
+                    await androidBot.sleep("3000");
                 }
                 if (await androidBot.findWords("少女事件", { region: [Math.ceil(Po_X * 0.26), Math.ceil(Po_Y * 0.16), Math.ceil(Po_X * 0.39), Math.ceil(Po_Y * 0.19)] })) {
                     console.log("当前在少女事件界面");
-                    await 少女事件界面选择();
+                    await 事件界面选择();
+                    await androidBot.sleep("3000");
                 }
                 if (await androidBot.findWords("比赛日", { region: [Math.ceil(Po_X * 0), Math.ceil(Po_Y * 0.088), Math.ceil(Po_X * 0.214), Math.ceil(Po_Y * 0.131875)] })) {
                     console.log("当前在比赛日界面");
                     await 任务比赛页面();
+                    await androidBot.sleep("3000");
+                }
+                if (await androidBot.findWords("目标粉丝数不足", { region: [Math.ceil(Po_X * 0.31), Math.ceil(Po_Y * 0.23), Math.ceil(Po_X * 0.68), Math.ceil(Po_Y * 0.28)] })) {
+                    console.log("目标粉丝数不足");
+                    await androidBot.click(Math.ceil(Po_X * 0.7), Math.ceil(Po_Y * 0.71));//点击前往赛事按钮一次
+                    await androidBot.sleep("3000");
                 }
                 if (await androidBot.findWords("养成", { region: [0, 0, Math.ceil(Po_X * 0.11), Math.ceil(Po_Y * 0.07)] })) {
                     console.log("当前在养成界面");
                     await 养成界面操作();
+                    await androidBot.sleep("3000");
                 }
             }
         }
@@ -334,7 +349,7 @@ async function androidMain(androidBot) {
      * 进入了少女事件界面的操作
      * @returns 
      */
-    async function 少女事件界面选择() {
+    async function 事件界面选择() {
         let t1, t2, t3
         /*多项(3,4,5)事件判断*/
         t1 = await androidBot.getWords({ region: [Math.ceil(Po_X * 0), Math.ceil(Po_Y * 0.58), Math.ceil(Po_X * 0.2), Math.ceil(Po_Y * 0.65)], scale: 2 });
